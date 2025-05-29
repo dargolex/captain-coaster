@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Roller Coasters</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 24px 0;
+        }
+        .container {
+            background: #fff;
+            max-width: 98vw;
+            margin: 0 auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 16px 8px;
+        }
+        h1 {
+            text-align: center;
+            color: #2d3a4b;
+            margin-bottom: 24px;
+            font-size: 2rem;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background: #fff;
+            font-size: 0.97rem;
+        }
+        th, td {
+            border: none;
+            padding: 7px 8px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        th {
+            background: #e9eef6;
+            color: #2d3a4b;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        tbody tr {
+            background: #f9fbfd;
+            transition: background 0.2s;
+            cursor: move;
+        }
+        tbody tr:hover {
+            background: #e3f0fc;
+        }
+        tbody tr:nth-child(even) {
+            background: #f1f6fa;
+        }
+        @media (max-width: 1200px) {
+            table, th, td {
+                font-size: 0.92rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Roller Coasters</h1>
+        <table>
+            <thead>
+                <tr>
+                    {% for key in coasters[0].keys() %}
+                        {% if key != 'id' %}
+                            <th>{{ key|capitalize }}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody id="coaster-list">
+                {% for coaster in coasters %}
+                <tr data-id="{{ coaster['id'] }}">
+                    {% for key, value in coaster.items() %}
+                        {% if key != 'id' %}
+                            <td>{{ value }}</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        var el = document.getElementById('coaster-list');
+        new Sortable(el, {
+            animation: 150,
+            onEnd: function (evt) {
+                let order = Array.from(el.children).map(tr => parseInt(tr.getAttribute('data-id')));
+                fetch('/update_order', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({order: order})
+                }).then(response => response.json()).then(data => {
+                    if(data.status === 'success') {
+                        location.reload();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

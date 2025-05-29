@@ -1,0 +1,15 @@
+# Environment
+.env
+.envrc
+venv
+
+# Python
+.venv
+env
+__pycache__
+
+# IDE
+.vscode
+.idea
+
+*.xlsx

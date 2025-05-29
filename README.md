@@ -19,7 +19,7 @@ flask-rollercoasters-app
 1. **Clone the repository** (if applicable):
    ```
    git clone <repository-url>
-   cd flask-rollercoasters-app
+   cd captain-coaster
    ```
 
 2. **Create a virtual environment** (optional but recommended):

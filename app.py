@@ -7,7 +7,7 @@ EXCEL_FILE = 'coasters_info.xlsx'
 
 def load_coasters():
     df = pd.read_excel(EXCEL_FILE)
-    df = df.sort_values('index')
+    df = df.sort_values('rank')
     return df
 
 @app.route('/')
@@ -20,8 +20,8 @@ def index():
 def update_order():
     new_order = request.json['order']  # list of coaster IDs in new order
     df = pd.read_excel(EXCEL_FILE)
-    df['index'] = df['id'].apply(lambda x: new_order.index(x))
-    df = df.sort_values('index')
+    df['rank'] = df['id'].apply(lambda x: new_order.index(x))
+    df = df.sort_values('rank')
     df.to_excel(EXCEL_FILE, index=False)
     return jsonify({'status': 'success'})
 

@@ -102,6 +102,9 @@
             <button type="submit">Add Park</button>
         </form>
         <div class="message" id="message"></div>
+        <div style="text-align:center; margin-bottom:16px;">
+            <button id="save-order-btn" style="padding:8px 24px; border-radius:5px; background:#2d3a4b; color:#fff; font-weight:700; border:none; font-size:1rem; cursor:pointer;">Save Order</button>
+        </div>
         <table>
             <thead>
                 <tr>
@@ -127,21 +130,31 @@
     </div>
     <script>
         var el = document.getElementById('coaster-list');
+        var newOrder = null;
         new Sortable(el, {
             animation: 150,
             onEnd: function (evt) {
-                let order = Array.from(el.children).map(tr => parseInt(tr.getAttribute('data-id')));
-                fetch('/update_order', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({order: order})
-                }).then(response => response.json()).then(data => {
-                    if(data.status === 'success') {
-                        location.reload();
-                    }
-                });
+                newOrder = Array.from(el.children).map(tr => parseInt(tr.getAttribute('data-id')));
+                // Enable save button
+                document.getElementById('save-order-btn').disabled = false;
             }
         });
+
+        // Save order button handler
+        document.getElementById('save-order-btn').addEventListener('click', function() {
+            if (!newOrder) return;
+            fetch('/update_order', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({order: newOrder})
+            }).then(response => response.json()).then(data => {
+                if(data.status === 'success') {
+                    location.reload();
+                }
+            });
+        });
+        // Disable save button initially
+        document.getElementById('save-order-btn').disabled = true;
 
         // Handle park add form
         document.getElementById('add-park-form').addEventListener('submit', function(e) {

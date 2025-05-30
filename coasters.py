@@ -43,7 +43,7 @@ def extract_coaster_info(coaster):
         'Park': coaster.get('park', {}).get('name'),
         'Manufacturer': coaster.get('manufacturer', {}).get('name'),
         'Model': coaster.get('model', {}).get('name'),
-        'Opening Year': coaster.get('openingDate'),
+        'Opening Year': str(pd.to_datetime(coaster.get('openingDate')).year),
         'Height': coaster.get('height'),
         'Max Speed': coaster.get('speed'),
         'Length': coaster.get('length'),

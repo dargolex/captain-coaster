@@ -25,6 +25,33 @@
             margin-bottom: 24px;
             font-size: 2rem;
         }
+        form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 8px;
+        }
+        input[type="text"] {
+            padding: 7px 10px;
+            border-radius: 5px;
+            border: 1px solid #bfc7d1;
+            font-size: 1rem;
+        }
+        button[type="submit"] {
+            padding: 7px 16px;
+            border-radius: 5px;
+            border: none;
+            background: #2d3a4b;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        button[type="submit"]:hover {
+            background: #1a2230;
+        }
         table {
             border-collapse: collapse;
             width: 100%;
@@ -54,6 +81,12 @@
         tbody tr:nth-child(even) {
             background: #f1f6fa;
         }
+        .message {
+            text-align: center;
+            color: #2d3a4b;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+        }
         @media (max-width: 1200px) {
             table, th, td {
                 font-size: 0.92rem;
@@ -64,6 +97,11 @@
 <body>
     <div class="container">
         <h1>Roller Coasters</h1>
+        <form id="add-park-form">
+            <input type="text" id="park-name" name="park_name" placeholder="Enter park name..." required>
+            <button type="submit">Add Park</button>
+        </form>
+        <div class="message" id="message"></div>
         <table>
             <thead>
                 <tr>
@@ -103,6 +141,25 @@
                     }
                 });
             }
+        });
+
+        // Handle park add form
+        document.getElementById('add-park-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const parkName = document.getElementById('park-name').value;
+            fetch('/add_park', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({park_name: parkName})
+            })
+            .then(response => response.json())
+            .then(data => {
+                const msg = document.getElementById('message');
+                msg.textContent = data.message;
+                if(data.status === 'success') {
+                    setTimeout(() => { location.reload(); }, 1200);
+                }
+            });
         });
     </script>
 </body>

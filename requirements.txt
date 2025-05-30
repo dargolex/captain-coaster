@@ -3,4 +3,4 @@ pandas
 openpyxl
 requests
 pandas
-pyspark
+# pyspark  # No longer needed, logic now uses pandas only

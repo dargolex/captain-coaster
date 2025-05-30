@@ -3,10 +3,10 @@ import os
 import pandas as pd
 import requests
 
-JSON_FILE = 'all_coasters.json'
-EXCEL_FILE = 'coasters_info.xlsx'
-API_URL = 'https://captaincoaster.com/api/coasters/'
-API_KEY = '47cbe095-3b64-404b-8e7f-1e94fca94940'
+JSON_FILE = os.environ.get('JSON_FILE')
+EXCEL_FILE = os.environ.get('EXCEL_FILE')
+API_URL = os.environ.get('API_URL')
+API_KEY = os.environ.get('API_KEY')
 
 COLUMNS = [
     'id', 'name', 'park_name', 'manufacturer_name', 'model_name',
@@ -39,15 +39,15 @@ def fetch_coaster_details(coaster_ids):
 def extract_coaster_info(coaster):
     return {
         'id': coaster.get('id'),
-        'name': coaster.get('name'),
-        'park_name': coaster.get('park', {}).get('name'),
-        'manufacturer_name': coaster.get('manufacturer', {}).get('name'),
-        'model_name': coaster.get('model', {}).get('name'),
-        'opening_date': coaster.get('openingDate'),
-        'height': coaster.get('height'),
-        'speed': coaster.get('speed'),
-        'length': coaster.get('length'),
-        'inversions_number': coaster.get('inversionsNumber'),
+        'Name': coaster.get('name'),
+        'Park': coaster.get('park', {}).get('name'),
+        'Manufacturer': coaster.get('manufacturer', {}).get('name'),
+        'Model': coaster.get('model', {}).get('name'),
+        'Opening Year': coaster.get('openingDate'),
+        'Height': coaster.get('height'),
+        'Max Speed': coaster.get('speed'),
+        'Length': coaster.get('length'),
+        'Inversions': coaster.get('inversionsNumber'),
         'status': coaster.get('status', {}).get('name'),
     }
 
@@ -66,6 +66,7 @@ def append_coasters_to_excel(new_coasters):
     if not new_coasters:
         return False, 'No new coasters to add.'
     new_df = pd.DataFrame(new_coasters)
+    new_df = new_df.drop(columns=['status'])
     if os.path.exists(EXCEL_FILE):
         df = pd.read_excel(EXCEL_FILE)
         if 'rank' in df.columns and not df['rank'].isnull().all():
@@ -76,7 +77,7 @@ def append_coasters_to_excel(new_coasters):
             max_rank = 0
         new_df['rank'] = range(max_rank + 1, max_rank + 1 + len(new_df))
         combined = pd.concat([df, new_df], ignore_index=True)
-        combined = combined.drop_duplicates(subset=['name'])
+        combined = combined.drop_duplicates(subset=['Name'])
     else:
         new_df['rank'] = range(1, len(new_df) + 1)
         combined = new_df

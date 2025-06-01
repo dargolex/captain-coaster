@@ -10,8 +10,12 @@ def index():
 
 @app.route('/update_order', methods=['POST'])
 def update_order():
-    new_order = request.json['order']  # list of coaster IDs in new order
-    update_coaster_order(new_order)
+    data = request.json
+    # Support both old and new API
+    if isinstance(data, dict) and ('remove' in data or 'order' in data):
+        update_coaster_order(data)
+    else:
+        update_coaster_order(data['order'])
     return jsonify({'status': 'success'})
 
 @app.route('/add_park', methods=['POST'])

@@ -99,9 +99,21 @@ def add_park_by_name(park_name):
     return ok, msg
 
 
-def update_coaster_order(new_order):
+def update_coaster_order(new_order_and_remove):
+    # Support both old and new API
+    if isinstance(new_order_and_remove, dict):
+        new_order = new_order_and_remove.get('order', [])
+        remove_ids = new_order_and_remove.get('remove', [])
+    else:
+        new_order = new_order_and_remove
+        remove_ids = []
     df = pd.read_excel(EXCEL_FILE)
-    df['rank'] = df['id'].apply(lambda x: new_order.index(x))
+    # Remove coasters if needed
+    if remove_ids:
+        df = df[~df['id'].isin(remove_ids)]
+    # Update order
+    df['rank'] = df['id'].apply(lambda x: new_order.index(x) + 1 if x in new_order else -1)
+    df = df[df['rank'] != 0 and df['rank'] != -1]
     df = df.sort_values('rank')
     df.to_excel(EXCEL_FILE, index=False)
 

@@ -109,20 +109,28 @@
             <thead>
                 <tr>
                     {% for key in coasters[0].keys() %}
-                        {% if key != 'id' %}
+                        {% if key != 'id' and key|lower != 'commentaire' %}
                             <th>{{ key|capitalize }}</th>
                         {% endif %}
                     {% endfor %}
+                    <th>Remove</th>
                 </tr>
             </thead>
             <tbody id="coaster-list">
                 {% for coaster in coasters %}
                 <tr data-id="{{ coaster['id'] }}">
                     {% for key, value in coaster.items() %}
-                        {% if key != 'id' %}
-                            <td>{{ value }}</td>
+                        {% if key != 'id' and key|lower != 'commentaire' %}
+                            <td>
+                                {% if value is number and value == value|int %}
+                                    {{ value|int }}
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                            </td>
                         {% endif %}
                     {% endfor %}
+                    <td><button class="remove-btn" style="background:#e74c3c;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;">Remove</button></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -131,11 +139,26 @@
     <script>
         var el = document.getElementById('coaster-list');
         var newOrder = null;
+        var removedIds = [];
         new Sortable(el, {
             animation: 150,
             onEnd: function (evt) {
-                newOrder = Array.from(el.children).map(tr => parseInt(tr.getAttribute('data-id')));
-                // Enable save button
+                newOrder = Array.from(el.children).map(tr => parseInt(tr.getAttribute('data-id')))
+                    .filter(id => !removedIds.includes(id));
+                document.getElementById('save-order-btn').disabled = false;
+            }
+        });
+
+        // Remove button handler
+        el.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-btn')) {
+                var tr = e.target.closest('tr');
+                var id = parseInt(tr.getAttribute('data-id'));
+                removedIds.push(id);
+                tr.remove();
+                // Update newOrder to reflect removals
+                newOrder = Array.from(el.children).map(tr => parseInt(tr.getAttribute('data-id')))
+                    .filter(id => !removedIds.includes(id));
                 document.getElementById('save-order-btn').disabled = false;
             }
         });
@@ -146,7 +169,7 @@
             fetch('/update_order', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({order: newOrder})
+                body: JSON.stringify({order: newOrder, remove: removedIds})
             }).then(response => response.json()).then(data => {
                 if(data.status === 'success') {
                     location.reload();

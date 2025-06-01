@@ -124,6 +124,9 @@
                             <td>
                                 {% if value is number and value == value|int %}
                                     {{ value|int }}
+                                    
+                                {% elif value is number and value != value %} {# handles float('nan') #}
+
                                 {% else %}
                                     {{ value }}
                                 {% endif %}
